@@ -1,7 +1,6 @@
 extends Node
 
 # Game Manager - Main autoload for game state management
-class_name GameManager
 
 signal game_state_changed(new_state)
 signal elements_changed(new_amount)

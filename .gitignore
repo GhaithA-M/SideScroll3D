@@ -1,10 +1,13 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
-README.md
-project.godot
-icon.svg.import
-icon.svg
-.vscode/settings.json
-.gitattributes
-.editorconfig
+
+*.md
+*.godot
+*.import
+*.svg
+*.json
+*.gitattributes
+*.editorconfig
+*.uid
+*.tres

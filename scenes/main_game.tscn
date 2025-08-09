@@ -7,6 +7,13 @@ script = ExtResource("1_0xqxq")
 
 [node name="Environment" type="WorldEnvironment" parent="."]
 
+[node name="SideScrollCamera" type="Camera3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 15, 5, 0)
+projection = 1
+size = 20
+near = 0.1
+far = 100.0
+
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 10, 0)
 light_energy = 1.0
@@ -21,11 +28,6 @@ mesh = SubResource("CapsuleMesh_1")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 shape = SubResource("CapsuleShape3D_1")
-
-[node name="CameraArm" type="SpringArm3D" parent="Player"]
-spring_length = 8.0
-
-[node name="Camera3D" type="Camera3D" parent="Player/CameraArm"]
 
 [node name="MiningArea" type="Area3D" parent="Player"]
 

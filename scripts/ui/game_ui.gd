@@ -7,18 +7,21 @@ signal menu_opened(menu_name: String)
 signal menu_closed(menu_name: String)
 
 # UI Panels
-@onready var hud_panel: Control = $HUDPanel
+@onready var left_sidebar: Panel = $LeftSidebar
 @onready var pause_menu: Control = $PauseMenu
 @onready var game_over_menu: Control = $GameOverMenu
 @onready var upgrade_menu: Control = $UpgradeMenu
 @onready var build_menu: Control = $BuildMenu
 @onready var tutorial_panel: Control = $TutorialPanel
 
-# HUD Elements
-@onready var elements_label: Label = $HUDPanel/ElementsLabel
-@onready var health_bar: ProgressBar = $HUDPanel/HealthBar
-@onready var depth_label: Label = $HUDPanel/DepthLabel
-@onready var materials_label: Label = $HUDPanel/MaterialsLabel
+# Sidebar Elements - Dig n Rig style
+@onready var elements_value: Label = $LeftSidebar/ElementsPanel/ElementsValue
+@onready var health_bar: ProgressBar = $LeftSidebar/HealthBar
+@onready var depth_label: Label = $LeftSidebar/DepthLabel
+@onready var vac_pak_bar: ProgressBar = $LeftSidebar/VacPakPanel/VacPakBar
+@onready var vac_pak_label: Label = $LeftSidebar/VacPakPanel/VacPakLabel
+@onready var tool_grid: GridContainer = $LeftSidebar/DigToolsPanel/ToolGrid
+@onready var item_grid: GridContainer = $LeftSidebar/ItemsPanel/ItemGrid
 
 # Menu Elements
 @onready var pause_resume_button: Button = $PauseMenu/ResumeButton

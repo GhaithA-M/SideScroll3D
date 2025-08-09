@@ -93,46 +93,117 @@ script = ExtResource("res://scripts/enemies/enemy_manager.gd")
 [node name="UI" type="CanvasLayer" parent="."]
 script = ExtResource("res://scripts/ui/game_ui.gd")
 
-[node name="HUDPanel" type="Control" parent="UI"]
-layout_mode = 3
-anchors_preset = 15
+[node name="LeftSidebar" type="Panel" parent="UI"]
+layout_mode = 0
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 200.0
+color = Color(0.1, 0.1, 0.1, 0.9)
+
+[node name="ElementsPanel" type="VBoxContainer" parent="UI/LeftSidebar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 100.0
+
+[node name="ElementsTitle" type="Label" parent="UI/LeftSidebar/ElementsPanel"]
+layout_mode = 2
+text = "ELEMENTS"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_1")
+
+[node name="ElementsValue" type="Label" parent="UI/LeftSidebar/ElementsPanel"]
+layout_mode = 2
+text = "64"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_2")
+
+[node name="DigToolsPanel" type="VBoxContainer" parent="UI/LeftSidebar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 110.0
+offset_bottom = 280.0
+
+[node name="DigToolsTitle" type="Label" parent="UI/LeftSidebar/DigToolsPanel"]
+layout_mode = 2
+text = "DIG TOOLS"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_1")
+
+[node name="ToolGrid" type="GridContainer" parent="UI/LeftSidebar/DigToolsPanel"]
+layout_mode = 2
+columns = 2
+
+[node name="Tool1" type="Button" parent="UI/LeftSidebar/DigToolsPanel/ToolGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 40)
+text = "Lvl 1"
+
+[node name="Tool2" type="Button" parent="UI/LeftSidebar/DigToolsPanel/ToolGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 40)
+text = "Lvl 2"
+
+[node name="ItemsPanel" type="VBoxContainer" parent="UI/LeftSidebar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 290.0
+offset_bottom = 450.0
+
+[node name="ItemsTitle" type="Label" parent="UI/LeftSidebar/ItemsPanel"]
+layout_mode = 2
+text = "ITEMS"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_1")
+
+[node name="ItemGrid" type="GridContainer" parent="UI/LeftSidebar/ItemsPanel"]
+layout_mode = 2
+columns = 4
+
+[node name="VacPakPanel" type="VBoxContainer" parent="UI/LeftSidebar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 460.0
+offset_bottom = 600.0
+
+[node name="VacPakTitle" type="Label" parent="UI/LeftSidebar/VacPakPanel"]
+layout_mode = 2
+text = "VAC PAK"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_1")
+
+[node name="VacPakBar" type="ProgressBar" parent="UI/LeftSidebar/VacPakPanel"]
+layout_mode = 2
+value = 80.0
+show_percentage = false
+
+[node name="VacPakLabel" type="Label" parent="UI/LeftSidebar/VacPakPanel"]
+layout_mode = 2
+text = "80 / 100"
+horizontal_alignment = 1
+
+[node name="HealthBar" type="ProgressBar" parent="UI/LeftSidebar"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-
-[node name="ElementsLabel" type="Label" parent="UI/HUDPanel"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 200.0
-offset_bottom = 50.0
-text = "Elements: 0"
-label_settings = SubResource("LabelSettings_1")
-
-[node name="HealthBar" type="ProgressBar" parent="UI/HUDPanel"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 60.0
-offset_right = 220.0
-offset_bottom = 80.0
+offset_top = -40.0
 value = 100.0
+show_percentage = false
 
-[node name="DepthLabel" type="Label" parent="UI/HUDPanel"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 90.0
-offset_right = 200.0
-offset_bottom = 120.0
+[node name="DepthLabel" type="Label" parent="UI/LeftSidebar"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -20.0
 text = "Depth: 0m"
-label_settings = SubResource("LabelSettings_1")
-
-[node name="MaterialsLabel" type="Label" parent="UI/HUDPanel"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 130.0
-offset_right = 200.0
-offset_bottom = 160.0
-text = "Materials: 0"
-label_settings = SubResource("LabelSettings_1")
+horizontal_alignment = 1
 
 [node name="PauseMenu" type="Control" parent="UI"]
 layout_mode = 3

@@ -19,14 +19,16 @@ enum GameState {
 
 # Player Data
 var player_data = {
-	"elements": 0,
+	"elements": 64,  # Start with some elements like Dig n Rig
 	"max_depth": 0,
 	"health": 100,
 	"max_health": 100,
 	"upgrades": {},
 	"inventory": {},
 	"conveyor_belts": 0,
-	"materials_mined": 0
+	"materials_mined": 0,
+	"selected_tool": 0,  # Currently selected dig tool
+	"vac_pak_capacity": 100
 }
 
 # Game State
@@ -44,14 +46,15 @@ var game_settings = {
 	"fullscreen": false
 }
 
-# Material Types and Values
+# Dig n Rig style material types and values
 var material_types = {
-	"dirt": {"value": 1, "color": Color.BROWN, "rarity": 0.8},
-	"stone": {"value": 2, "color": Color.GRAY, "rarity": 0.6},
-	"iron": {"value": 5, "color": Color.ORANGE, "rarity": 0.4},
-	"gold": {"value": 10, "color": Color.YELLOW, "rarity": 0.2},
-	"diamond": {"value": 25, "color": Color.CYAN, "rarity": 0.05},
-	"fossil": {"value": 50, "color": Color.WHITE, "rarity": 0.02}
+	"grass": {"value": 0, "color": Color(0.2, 0.8, 0.2), "rarity": 1.0},      # Green surface
+	"dirt": {"value": 1, "color": Color(0.6, 0.4, 0.2), "rarity": 0.8},       # Brown dirt
+	"stone": {"value": 2, "color": Color(0.5, 0.5, 0.5), "rarity": 0.6},      # Gray stone
+	"iron": {"value": 5, "color": Color(0.8, 0.5, 0.2), "rarity": 0.4},       # Orange iron
+	"gold": {"value": 10, "color": Color(1.0, 0.8, 0.0), "rarity": 0.2},      # Bright yellow gold
+	"diamond": {"value": 25, "color": Color(0.4, 0.8, 1.0), "rarity": 0.05},  # Light blue diamond
+	"fossil": {"value": 50, "color": Color(0.9, 0.9, 0.9), "rarity": 0.02}    # Off-white fossil
 }
 
 # Upgrade Costs

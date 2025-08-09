@@ -63,13 +63,19 @@ func _ready():
 		show_tutorial()
 
 func setup_ui():
-	# Setup HUD
-	hud_panel.visible = true
+	# Setup Dig n Rig style sidebar
+	left_sidebar.visible = true
 	pause_menu.visible = false
 	game_over_menu.visible = false
 	upgrade_menu.visible = false
 	build_menu.visible = false
 	tutorial_panel.visible = false
+	
+	# Setup dig tools grid
+	setup_dig_tools()
+	
+	# Setup items grid
+	setup_items_grid()
 	
 	# Setup upgrade buttons
 	setup_upgrade_buttons()
@@ -94,6 +100,34 @@ func connect_signals():
 	game_over_main_menu_button.pressed.connect(_on_main_menu_pressed)
 	
 	tutorial_next_button.pressed.connect(_on_tutorial_next_pressed)
+
+func setup_dig_tools():
+	# Clear existing tools
+	for child in tool_grid.get_children():
+		child.queue_free()
+	
+	# Add dig tools matching Dig n Rig style
+	var tools = ["Lvl 1", "Lvl 2", "Lvl 3", "Lvl 4", "Lvl 5"]
+	for i in range(tools.size()):
+		var tool_button = Button.new()
+		tool_button.text = tools[i]
+		tool_button.custom_minimum_size = Vector2(80, 40)
+		tool_button.flat = true
+		tool_button.pressed.connect(_on_tool_selected.bind(i))
+		tool_grid.add_child(tool_button)
+
+func setup_items_grid():
+	# Clear existing items
+	for child in item_grid.get_children():
+		child.queue_free()
+	
+	# Add item slots matching Dig n Rig inventory
+	for i in range(12):  # 3x4 grid like in screenshot
+		var item_slot = Button.new()
+		item_slot.custom_minimum_size = Vector2(40, 40)
+		item_slot.flat = true
+		item_slot.pressed.connect(_on_item_selected.bind(i))
+		item_grid.add_child(item_slot)
 
 func setup_upgrade_buttons():
 	# Create upgrade buttons dynamically
@@ -131,8 +165,8 @@ func setup_build_menu():
 		build_menu.add_child(button)
 
 func update_hud():
-	# Update elements
-	elements_label.text = "Elements: " + str(GameManager.player_data.elements)
+	# Update elements in Dig n Rig style
+	elements_value.text = str(GameManager.player_data.elements)
 	
 	# Update health bar
 	var health_percent = float(GameManager.player_data.health) / float(GameManager.player_data.max_health)
@@ -141,8 +175,11 @@ func update_hud():
 	# Update depth
 	depth_label.text = "Depth: " + str(int(GameManager.player_data.max_depth)) + "m"
 	
-	# Update materials mined
-	materials_label.text = "Materials: " + str(GameManager.player_data.materials_mined)
+	# Update Vac Pak (materials storage)
+	var materials_count = GameManager.player_data.materials_mined
+	var vac_pak_capacity = 100  # Default capacity
+	vac_pak_bar.value = (float(materials_count) / float(vac_pak_capacity)) * 100
+	vac_pak_label.text = str(materials_count) + " / " + str(vac_pak_capacity)
 
 func update_upgrade_buttons():
 	for i in range(upgrade_buttons.size()):
@@ -195,7 +232,7 @@ func update_tutorial_text():
 		tutorial_text.text = "Tutorial completed!"
 
 func _on_elements_changed(new_amount: int):
-	elements_label.text = "Elements: " + str(new_amount)
+	elements_value.text = str(new_amount)
 	update_upgrade_buttons()
 
 func _on_health_changed(new_health: int):
@@ -249,6 +286,15 @@ func _on_upgrade_button_pressed(upgrade_type: String):
 func _on_belt_button_pressed(belt_type: int):
 	# TODO: Implement belt placement
 	pass
+
+func _on_tool_selected(tool_index: int):
+	# Handle dig tool selection
+	GameManager.player_data.selected_tool = tool_index
+	print("Selected tool: ", tool_index)
+
+func _on_item_selected(item_index: int):
+	# Handle item selection from inventory
+	print("Selected item: ", item_index)
 
 func _input(event):
 	if event.is_action_pressed("pause") and current_menu == "pause":

@@ -13,6 +13,7 @@ projection = 1
 size = 20
 near = 0.1
 far = 100.0
+script = ExtResource("res://scripts/camera/side_scroll_camera.gd")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 10, 0)
@@ -23,8 +24,31 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
 script = ExtResource("res://scripts/player/player_controller.gd")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Player"]
-mesh = SubResource("CapsuleMesh_1")
+[node name="RobotBody" type="Node3D" parent="Player"]
+
+[node name="MainBody" type="MeshInstance3D" parent="Player/RobotBody"]
+mesh = SubResource("BoxMesh_2")
+material_override = SubResource("StandardMaterial3D_2")
+
+[node name="Head" type="MeshInstance3D" parent="Player/RobotBody"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0.6, 0)
+mesh = SubResource("BoxMesh_3")
+material_override = SubResource("StandardMaterial3D_3")
+
+[node name="LeftArm" type="MeshInstance3D" parent="Player/RobotBody"]
+transform = Transform3D(0.3, 0, 0, 0, 0.8, 0, 0, 0, 0.3, -0.6, 0.2, 0)
+mesh = SubResource("BoxMesh_4")
+material_override = SubResource("StandardMaterial3D_4")
+
+[node name="RightArm" type="MeshInstance3D" parent="Player/RobotBody"]
+transform = Transform3D(0.3, 0, 0, 0, 0.8, 0, 0, 0, 0.3, 0.6, 0.2, 0)
+mesh = SubResource("BoxMesh_5")
+material_override = SubResource("StandardMaterial3D_5")
+
+[node name="Drill" type="MeshInstance3D" parent="Player/RobotBody"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.6, 0.8, 0, 0)
+mesh = SubResource("CylinderMesh_1")
+material_override = SubResource("StandardMaterial3D_6")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 shape = SubResource("CapsuleShape3D_1")

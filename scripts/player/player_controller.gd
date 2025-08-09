@@ -27,7 +27,7 @@ var invulnerability_time: float = 1.0
 # Components
 @onready var mining_area: Area3D = $MiningArea
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
+@onready var robot_body: Node3D = $RobotBody
 
 # Mining State
 var is_mining: bool = false
@@ -99,9 +99,9 @@ func handle_movement(delta):
 	if is_on_floor() and velocity.y < 0:
 		AudioManager.play_sound("land")
 	
-	# Update mesh rotation based on facing direction
-	if mesh_instance:
-		mesh_instance.scale.x = abs(mesh_instance.scale.x) * last_facing_direction
+	# Update robot rotation based on facing direction
+	if robot_body:
+		robot_body.scale.x = abs(robot_body.scale.x) * last_facing_direction
 
 func handle_mining(delta):
 	if not auto_mining or GameManager.current_state != GameManager.GameState.PLAYING:
@@ -164,11 +164,12 @@ func take_damage(amount: int, source: String = "unknown"):
 	var tween = create_tween()
 	tween.tween_callback(func(): is_invulnerable = false).set_delay(invulnerability_time)
 	
-	# Flash effect
-	var flash_tween = create_tween()
-	flash_tween.set_loops(4)
-	flash_tween.tween_property(mesh_instance, "transparency", 0.5, 0.1)
-	flash_tween.tween_property(mesh_instance, "transparency", 0.0, 0.1)
+	# Flash effect on robot body
+	if robot_body:
+		var flash_tween = create_tween()
+		flash_tween.set_loops(4)
+		flash_tween.tween_property(robot_body, "modulate", Color(1, 0.5, 0.5, 0.7), 0.1)
+		flash_tween.tween_property(robot_body, "modulate", Color.WHITE, 0.1)
 	
 	# Update game manager
 	GameManager.change_health(-amount)

@@ -49,28 +49,60 @@ func _process(delta):
 	transport_materials(delta)
 
 func load_belt_models():
-	# Create simple belt models for now
-	# In a real implementation, these would be loaded from .gltf files
+	# Create industrial-style belt models matching Dig n Rig aesthetic
 	
 	for belt_type in BeltType.values():
-		var mesh_instance = MeshInstance3D.new()
-		var box_mesh = BoxMesh.new()
-		box_mesh.size = Vector3(belt_length, 0.2, belt_length)
-		mesh_instance.mesh = box_mesh
+		var belt_node = Node3D.new()
 		
-		var material = StandardMaterial3D.new()
+		# Main belt surface
+		var belt_surface = MeshInstance3D.new()
+		var surface_mesh = BoxMesh.new()
+		surface_mesh.size = Vector3(belt_length, 0.1, 0.8)
+		belt_surface.mesh = surface_mesh
+		
+		# Industrial blue conveyor material like Dig n Rig
+		var surface_material = StandardMaterial3D.new()
+		surface_material.albedo_color = Color(0.2, 0.4, 0.8)  # Industrial blue
+		surface_material.metallic = 0.3
+		surface_material.roughness = 0.7
+		belt_surface.material_override = surface_material
+		belt_node.add_child(belt_surface)
+		
+		# Side rails
+		var left_rail = MeshInstance3D.new()
+		var rail_mesh = BoxMesh.new()
+		rail_mesh.size = Vector3(belt_length, 0.2, 0.1)
+		left_rail.mesh = rail_mesh
+		left_rail.position = Vector3(0, 0.05, 0.45)
+		
+		var right_rail = MeshInstance3D.new()
+		right_rail.mesh = rail_mesh
+		right_rail.position = Vector3(0, 0.05, -0.45)
+		
+		# Rail material - darker gray
+		var rail_material = StandardMaterial3D.new()
+		rail_material.albedo_color = Color(0.3, 0.3, 0.3)
+		rail_material.metallic = 0.8
+		rail_material.roughness = 0.4
+		left_rail.material_override = rail_material
+		right_rail.material_override = rail_material
+		
+		belt_node.add_child(left_rail)
+		belt_node.add_child(right_rail)
+		
+		# Type-specific modifications
 		match belt_type:
-			BeltType.STRAIGHT:
-				material.albedo_color = Color.BLUE
 			BeltType.CORNER:
-				material.albedo_color = Color.GREEN
+				# Add corner indicator
+				surface_material.albedo_color = Color(0.2, 0.6, 0.8)
 			BeltType.ELEVATOR:
-				material.albedo_color = Color.YELLOW
+				# Make it more vertical looking
+				surface_material.albedo_color = Color(0.8, 0.8, 0.2)
 			BeltType.JUNCTION:
-				material.albedo_color = Color.RED
+				# Add junction indicator
+				surface_material.albedo_color = Color(0.8, 0.2, 0.2)
 		
-		mesh_instance.material_override = material
-		belt_models[belt_type] = mesh_instance
+		belt_models[belt_type] = belt_node
 
 func setup_placement_system():
 	# Create placement preview
@@ -115,9 +147,21 @@ func update_placement_preview():
 		placement_position.y += 0.1  # Slightly above surface
 		placement_preview.global_position = placement_position
 		
-		# Update preview mesh based on belt type
-		placement_preview.mesh = belt_models[current_belt_type].mesh
-		placement_preview.material_override.albedo_color = belt_models[current_belt_type].material_override.albedo_color
+		# Update preview based on belt type
+		var box_mesh = BoxMesh.new()
+		box_mesh.size = Vector3(belt_length, 0.1, 0.8)
+		placement_preview.mesh = box_mesh
+		
+		# Set preview color based on belt type
+		match current_belt_type:
+			BeltType.STRAIGHT:
+				placement_preview.material_override.albedo_color = Color(0.2, 0.4, 0.8, 0.5)
+			BeltType.CORNER:
+				placement_preview.material_override.albedo_color = Color(0.2, 0.6, 0.8, 0.5)
+			BeltType.ELEVATOR:
+				placement_preview.material_override.albedo_color = Color(0.8, 0.8, 0.2, 0.5)
+			BeltType.JUNCTION:
+				placement_preview.material_override.albedo_color = Color(0.8, 0.2, 0.2, 0.5)
 
 func place_belt(position: Vector3, belt_type: BeltType, direction: Vector3 = Vector3.FORWARD) -> bool:
 	if belts.size() >= max_belts:
@@ -154,14 +198,14 @@ func create_belt_instance(belt_type: BeltType, direction: Vector3) -> Node3D:
 	var belt_node = Node3D.new()
 	belt_node.name = "Belt_" + BeltType.keys()[belt_type]
 	
-	# Add mesh
-	var mesh_instance = belt_models[belt_type].duplicate()
-	belt_node.add_child(mesh_instance)
+	# Add the industrial belt model
+	var belt_model = belt_models[belt_type].duplicate()
+	belt_node.add_child(belt_model)
 	
-	# Add collision
+	# Add collision for material detection
 	var collision_shape = CollisionShape3D.new()
 	var box_shape = BoxShape3D.new()
-	box_shape.size = Vector3(belt_length, 0.2, belt_length)
+	box_shape.size = Vector3(belt_length, 0.3, 1.0)  # Match visual size
 	collision_shape.shape = box_shape
 	
 	var area = Area3D.new()
@@ -170,7 +214,7 @@ func create_belt_instance(belt_type: BeltType, direction: Vector3) -> Node3D:
 	area.body_exited.connect(_on_belt_body_exited.bind(belt_node))
 	belt_node.add_child(area)
 	
-	# Rotate based on direction
+	# Rotate based on direction for side-scrolling layout
 	if direction != Vector3.FORWARD:
 		var angle = direction.angle_to(Vector3.FORWARD)
 		belt_node.rotate_y(angle)

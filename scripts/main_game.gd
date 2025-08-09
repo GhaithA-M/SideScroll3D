@@ -70,28 +70,11 @@ func _process(delta):
 	if not is_game_initialized:
 		return
 	
-	# Update side-scrolling camera to follow player
-	update_camera_follow()
-	
 	# Auto save
 	auto_save_timer += delta
 	if auto_save_timer >= auto_save_interval:
 		SaveManager.auto_save()
 		auto_save_timer = 0.0
-
-func update_camera_follow():
-	if side_scroll_camera and player:
-		# Smooth camera follow for side-scrolling
-		var target_pos = player.global_position
-		target_pos.x += 15  # Offset to the side for side-scrolling view
-		target_pos.y += 5   # Slight upward offset
-		
-		# Smooth camera movement
-		var current_pos = side_scroll_camera.global_position
-		var new_pos = current_pos.lerp(target_pos, 0.1)
-		new_pos.z = 0  # Keep camera at fixed Z position for side-scrolling
-		
-		side_scroll_camera.global_position = new_pos
 
 func _on_terrain_destroyed(position: Vector3, material_type: String):
 	# Handle terrain destruction

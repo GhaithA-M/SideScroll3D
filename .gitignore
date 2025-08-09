@@ -13,3 +13,6 @@
 *.tres
 *.jpg
 *.png
+
+# *.gd
+# *.tscn

@@ -11,3 +11,8 @@
 *.editorconfig
 *.uid
 *.tres
+*.jpg
+*.png
+
+# *.gd
+# *.tscn

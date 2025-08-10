@@ -1,7 +1,6 @@
 extends Node
 
 # Game Manager - Main autoload for game state management
-class_name GameManager
 
 signal game_state_changed(new_state)
 signal elements_changed(new_amount)
@@ -55,6 +54,37 @@ var material_types = {
 	"gold": {"value": 10, "color": Color(1.0, 0.8, 0.0), "rarity": 0.2},      # Bright yellow gold
 	"diamond": {"value": 25, "color": Color(0.4, 0.8, 1.0), "rarity": 0.05},  # Light blue diamond
 	"fossil": {"value": 50, "color": Color(0.9, 0.9, 0.9), "rarity": 0.02}    # Off-white fossil
+=======
+# Material Types and Values (Authentic Dig-N-Rig style)
+var material_types = {
+	# Surface materials
+	"grass": {"value": 1, "color": Color(0.2, 0.6, 0.2), "rarity": 0.95, "layer": 0, "description": "Surface vegetation"},
+	"dirt": {"value": 2, "color": Color(0.55, 0.35, 0.15), "rarity": 0.9, "layer": 0, "description": "Common earth"},
+	
+	# Shallow materials
+	"clay": {"value": 3, "color": Color(0.7, 0.5, 0.3), "rarity": 0.7, "layer": 1, "description": "Moldable clay deposits"},
+	"stone": {"value": 4, "color": Color(0.45, 0.45, 0.45), "rarity": 0.8, "layer": 1, "description": "Basic stone"},
+	"limestone": {"value": 5, "color": Color(0.8, 0.8, 0.7), "rarity": 0.6, "layer": 1, "description": "Sedimentary rock"},
+	
+	# Medium depth materials  
+	"iron": {"value": 12, "color": Color(0.55, 0.5, 0.45), "rarity": 0.4, "layer": 2, "description": "Iron ore deposits"},
+	"copper": {"value": 10, "color": Color(0.7, 0.45, 0.2), "rarity": 0.5, "layer": 2, "description": "Copper veins"},
+	"coal": {"value": 8, "color": Color(0.2, 0.2, 0.2), "rarity": 0.6, "layer": 2, "description": "Fossil fuel"},
+	
+	# Deep precious materials
+	"silver": {"value": 25, "color": Color(0.8, 0.8, 0.9), "rarity": 0.2, "layer": 3, "description": "Precious silver"},
+	"gold": {"value": 40, "color": Color(1.0, 0.84, 0.0), "rarity": 0.15, "layer": 3, "description": "Pure gold veins"},
+	"platinum": {"value": 60, "color": Color(0.9, 0.9, 0.95), "rarity": 0.1, "layer": 3, "description": "Rare platinum"},
+	
+	# Ultra deep materials
+	"diamond": {"value": 100, "color": Color(0.7, 0.9, 1.0), "rarity": 0.05, "layer": 4, "description": "Precious diamonds"},
+	"emerald": {"value": 120, "color": Color(0.2, 0.8, 0.4), "rarity": 0.03, "layer": 4, "description": "Rare emeralds"},
+	"ruby": {"value": 110, "color": Color(0.9, 0.2, 0.3), "rarity": 0.04, "layer": 4, "description": "Blood red rubies"},
+	
+	# Core materials (ultra rare)
+	"fossil": {"value": 200, "color": Color(0.6, 0.4, 0.8), "rarity": 0.01, "layer": 5, "description": "Ancient fossils"},
+	"meteorite": {"value": 300, "color": Color(0.3, 0.3, 0.4), "rarity": 0.005, "layer": 5, "description": "Alien meteorite"},
+	"crystal": {"value": 500, "color": Color(1.0, 0.8, 1.0), "rarity": 0.002, "layer": 5, "description": "Energy crystals"}
 }
 
 # Upgrade Costs
@@ -154,6 +184,20 @@ func get_upgrade_cost(upgrade_type: String) -> int:
 	if current_level >= upgrade_costs[upgrade_type].size():
 		return -1
 	return upgrade_costs[upgrade_type][current_level]
+
+func get_materials_for_layer(layer: int) -> Array:
+	var layer_materials = []
+	for material_name in material_types.keys():
+		var material_data = material_types[material_name]
+		if material_data.get("layer", 0) == layer:
+			layer_materials.append(material_name)
+	return layer_materials
+
+func get_material_layer(material_name: String) -> int:
+	return material_types.get(material_name, {}).get("layer", 0)
+
+func get_material_description(material_name: String) -> String:
+	return material_types.get(material_name, {}).get("description", "Unknown material")
 
 func advance_tutorial():
 	tutorial_step += 1

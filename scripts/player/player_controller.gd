@@ -25,12 +25,9 @@ var is_invulnerable: bool = false
 var invulnerability_time: float = 1.0
 
 # Components
-@onready var camera_arm: SpringArm3D = $CameraArm
-@onready var camera: Camera3D = $CameraArm/Camera3D
 @onready var mining_area: Area3D = $MiningArea
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
-@onready var animation_player: AnimationPlayer = $AnimationPlayer
+@onready var robot_body: Node3D = $RobotBody
 
 # Mining State
 var is_mining: bool = false
@@ -42,10 +39,9 @@ var mining_cooldown: float = 0.5
 @onready var mining_particles: GPUParticles3D = $MiningParticles
 @onready var damage_particles: GPUParticles3D = $DamageParticles
 
-# Input
-var input_vector: Vector3
-var mouse_sensitivity: float = 0.002
-var camera_rotation: Vector2
+# Input - Side-scrolling 2.5D style
+var input_vector: Vector2  # Only X/Y movement for side-scrolling
+var last_facing_direction: int = 1  # 1 for right, -1 for left
 
 func _ready():
 	current_health = max_health
@@ -58,28 +54,26 @@ func _ready():
 	# Connect to game manager signals
 	GameManager.health_changed.connect(_on_game_manager_health_changed)
 	
-	# Setup camera
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# Side-scrolling doesn't need captured mouse
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _physics_process(delta):
 	handle_input()
 	handle_movement(delta)
 	handle_mining(delta)
 	update_depth()
-	handle_camera(delta)
 
 func handle_input():
-	# Movement input
-	input_vector = Vector3.ZERO
+	# Side-scrolling 2.5D movement input
+	input_vector = Vector2.ZERO
 	input_vector.x = Input.get_axis("move_left", "move_right")
-	input_vector.z = Input.get_axis("move_backward", "move_forward")
-	input_vector = input_vector.normalized()
+	input_vector.y = Input.get_axis("move_backward", "move_forward")  # Forward/back becomes up/down in side view
 	
-	# Mouse look
-	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		camera_rotation.x -= Input.get_last_mouse_velocity().y * mouse_sensitivity
-		camera_rotation.y -= Input.get_last_mouse_velocity().x * mouse_sensitivity
-		camera_rotation.x = clamp(camera_rotation.x, -PI/2, PI/2)
+	# Track facing direction for sprite flipping
+	if input_vector.x > 0:
+		last_facing_direction = 1
+	elif input_vector.x < 0:
+		last_facing_direction = -1
 
 func handle_movement(delta):
 	# Apply gravity
@@ -91,27 +85,23 @@ func handle_movement(delta):
 		velocity.y = jump_force
 		AudioManager.play_sound("jump")
 	
-	# Handle horizontal movement
+	# Handle side-scrolling movement
 	var speed_multiplier = 1.0 + (GameManager.get_upgrade_level("movement_speed") * 0.2)
 	var current_speed = move_speed * speed_multiplier
 	
-	# Transform input to camera space
-	var camera_basis = camera.global_transform.basis
-	var forward = -camera_basis.z
-	var right = camera_basis.x
-	forward.y = 0
-	right.y = 0
-	forward = forward.normalized()
-	right = right.normalized()
-	
-	velocity.x = (forward * input_vector.z + right * input_vector.x).x * current_speed
-	velocity.z = (forward * input_vector.z + right * input_vector.x).z * current_speed
+	# Side-scrolling 2.5D movement - X is left/right, Z is depth (limited)
+	velocity.x = input_vector.x * current_speed
+	velocity.z = input_vector.y * current_speed * 0.3  # Limited depth movement for 2.5D effect
 	
 	move_and_slide()
 	
 	# Handle landing
 	if is_on_floor() and velocity.y < 0:
 		AudioManager.play_sound("land")
+	
+	# Update robot rotation based on facing direction
+	if robot_body:
+		robot_body.scale.x = abs(robot_body.scale.x) * last_facing_direction
 
 func handle_mining(delta):
 	if not auto_mining or GameManager.current_state != GameManager.GameState.PLAYING:
@@ -156,10 +146,7 @@ func update_depth():
 	GameManager.update_depth(depth)
 	depth_changed.emit(depth)
 
-func handle_camera(delta):
-	# Update camera rotation
-	camera_arm.rotation.x = camera_rotation.x
-	camera_arm.rotation.y = camera_rotation.y
+
 
 func take_damage(amount: int, source: String = "unknown"):
 	if is_invulnerable:
@@ -177,11 +164,12 @@ func take_damage(amount: int, source: String = "unknown"):
 	var tween = create_tween()
 	tween.tween_callback(func(): is_invulnerable = false).set_delay(invulnerability_time)
 	
-	# Flash effect
-	var flash_tween = create_tween()
-	flash_tween.set_loops(4)
-	flash_tween.tween_property(mesh_instance, "transparency", 0.5, 0.1)
-	flash_tween.tween_property(mesh_instance, "transparency", 0.0, 0.1)
+	# Flash effect on robot body
+	if robot_body:
+		var flash_tween = create_tween()
+		flash_tween.set_loops(4)
+		flash_tween.tween_property(robot_body, "modulate", Color(1, 0.5, 0.5, 0.7), 0.1)
+		flash_tween.tween_property(robot_body, "modulate", Color.WHITE, 0.1)
 	
 	# Update game manager
 	GameManager.change_health(-amount)
@@ -209,10 +197,9 @@ func get_mining_efficiency() -> float:
 	return base_efficiency + (upgrade_level * 0.3)
 
 func set_build_mode(enabled: bool):
-	if enabled:
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	else:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# In side-scrolling mode, mouse is always visible
+	# This function can be used for other build mode setup in the future
+	pass
 
 func _input(event):
 	if event.is_action_pressed("interact") and current_mining_target:

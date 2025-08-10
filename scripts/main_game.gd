@@ -10,6 +10,7 @@ class_name MainGame
 @onready var enemy_manager: Node3D = $EnemyManager
 @onready var base: Node3D = $Base
 @onready var ui: GameUI = $UI
+@onready var side_scroll_camera: Camera3D = $SideScrollCamera
 
 # Game State
 var is_game_initialized: bool = false

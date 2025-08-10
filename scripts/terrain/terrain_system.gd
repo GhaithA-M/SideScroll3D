@@ -27,13 +27,15 @@ var chunks: Dictionary = {}
 var active_chunks: Array[Vector3] = []
 var chunk_meshes: Dictionary = {}
 
-# Material Types by Depth
+# Dig n Rig style layered materials by depth
 var depth_materials = {
-	0: ["dirt", "stone"],  # Surface
-	10: ["stone", "iron"],  # Shallow
-	25: ["iron", "gold"],   # Medium
-	50: ["gold", "diamond"], # Deep
-	100: ["diamond", "fossil"] # Very Deep
+	0: ["grass", "dirt"],      # Surface layer (green/brown)
+	5: ["dirt", "dirt"],       # Pure dirt layer (brown)
+	15: ["stone", "stone"],    # Stone layer (gray)
+	30: ["iron", "stone"],     # Iron deposits (orange/gray)
+	50: ["gold", "iron"],      # Gold deposits (yellow/orange)
+	80: ["diamond", "gold"],   # Diamond layer (cyan/yellow)
+	120: ["fossil", "diamond"] # Deep fossils (white/cyan)
 }
 
 func _ready():
@@ -113,20 +115,36 @@ func generate_height(x: float, z: float) -> int:
 	return clamp(height, surface_height, chunk_height)
 
 func determine_material_type(x: float, y: float, z: float) -> String:
-	var depth = -y
+	var depth = abs(y)  # Positive depth values
 	
-	# Determine material based on depth
-	var available_materials = ["dirt"]
-	for depth_threshold in depth_materials.keys():
-		if depth >= depth_threshold:
-			available_materials = depth_materials[depth_threshold]
+	# Dig n Rig style - clear layered materials by depth
+	var material_type = "dirt"  # Default
 	
-	# Use noise to select material
-	var noise_value = material_noise.get_noise_3d(x, y, z)
-	var material_index = int((noise_value + 1.0) * 0.5 * available_materials.size())
-	material_index = clamp(material_index, 0, available_materials.size() - 1)
+	# Determine layer based on exact depth thresholds
+	if depth < 5:
+		material_type = "grass" if depth < 2 else "dirt"
+	elif depth < 15:
+		material_type = "dirt"
+	elif depth < 30:
+		material_type = "stone"
+	elif depth < 50:
+		# Mix of iron and stone
+		var noise_value = material_noise.get_noise_3d(x, y, z)
+		material_type = "iron" if noise_value > 0.2 else "stone"
+	elif depth < 80:
+		# Mix of gold and iron
+		var noise_value = material_noise.get_noise_3d(x, y, z)
+		material_type = "gold" if noise_value > 0.4 else "iron"
+	elif depth < 120:
+		# Mix of diamond and gold
+		var noise_value = material_noise.get_noise_3d(x, y, z)
+		material_type = "diamond" if noise_value > 0.6 else "gold"
+	else:
+		# Deep fossils and diamonds
+		var noise_value = material_noise.get_noise_3d(x, y, z)
+		material_type = "fossil" if noise_value > 0.8 else "diamond"
 	
-	return available_materials[material_index]
+	return material_type
 
 func should_spawn_material(y: int, material_type: String) -> bool:
 	var depth = -y
